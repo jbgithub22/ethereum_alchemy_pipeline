@@ -1,0 +1,13 @@
+sphinx_readme
+web3
+alchemy-sdk
+eth_utils
+dotenv
+pandas
+polars
+numpy
+seaborn
+plotly
+matplotlib
+Streamlit
+-e .

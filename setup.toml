@@ -1,0 +1,72 @@
+# This file is kept for reference and potential non-Poetry setups.
+# For the active project configuration, see pyproject.toml.
+
+[build-system]
+requires = [
+    "setuptools>=45",
+    "setuptools-scm[toml]>=6.2",
+    "wheel",
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ethereum_alchemy_csv"
+authors = [
+    {name = "JBrien Barcoma", email = "jb.github22@gmail.com"},
+]
+description = "This package contains functions to extract transaction data from the Ethereum blockchain and saves it to a CSV file."
+readme = "README.md"
+requires-python = ">=3.12"
+keywords = ["Ethereum", "Alchemy", "CSV", "Data", "Pipeline", "Kafka"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Build Tools",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.12",
+]
+dynamic = ["version"]
+dependencies = [
+    "web3>=6.0.0",
+    "alchemy-sdk>=2.0.0",
+    "eth_utils>=2.0.0",
+    "python-dotenv>=1.0.0",
+    "pandas>=2.0.0",
+    "polars>=0.18.0",
+    "kafka-python>=2.0.2",
+]
+
+[project.optional-dependencies]
+visualization = [
+    "numpy>=1.23.0",
+    "seaborn>=0.12.0",
+    "plotly>=5.10.0",
+    "matplotlib>=3.6.0",
+]
+dashboard = [
+    "streamlit>=1.18.0",
+]
+dev = [
+    "pytest>=7.0.0",
+    "black>=22.0.0",
+    "isort>=5.10.0",
+    "flake8>=5.0.0",
+]
+docs = [
+    "sphinx>=4.0.0",
+    "sphinx_readme>=0.2.0",
+    "sphinx-rtd-theme>=1.0.0",
+]
+
+[tool.setuptools_scm]
+write_to = "ethereum_alchemy_csv/_version.py"
+
+[tool.black]
+line-length = 88
+target-version = ['py312']
+
+[tool.isort]
+profile = "black"
+
+# ... other project metadata fields as listed in:
+#     https://packaging.python.org/en/latest/guides/writing-pyproject-toml/

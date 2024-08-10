@@ -1,5 +1,5 @@
-# Virtual Environment
-venv/
+# Non-poetry pyproject.toml file
+!setup.toml
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

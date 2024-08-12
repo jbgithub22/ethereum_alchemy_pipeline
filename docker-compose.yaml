@@ -74,14 +74,14 @@ services:
     ports:
       - 9870:9870
     env_file:
-      - ./config
+      - ./hadoop-config
     environment:
         ENSURE_NAMENODE_DIR: "/tmp/hadoop-root/dfs/name"
   hadoop-datanode:
     image: apache/hadoop:3
     command: ["hdfs", "datanode"]
     env_file:
-      - ./config      
+      - ./hadoop-config      
   hadoop-resourcemanager:
     image: apache/hadoop:3
     hostname: resourcemanager
@@ -89,38 +89,36 @@ services:
     ports:
         - 8088:8088
     env_file:
-      - ./config
+      - ./hadoop-config
     volumes:
       - ./test.sh:/opt/test.sh
   hadoop-nodemanager:
     image: apache/hadoop:3
     command: ["yarn", "nodemanager"]
     env_file:
-      - ./config
+      - ./hadoop-config
 
   # Doris https://doris.apache.org/docs/install/cluster-deployment/run-docker-cluster/
   doris-fe:
-    image: apache/doris:2.0.3-fe-x86_64
+    image: apache/doris:2.0.0_alpha-fe-x86_64
     hostname: fe
     environment:
-     - FE_SERVERS=fe1:${INTERNAL_IP_OF_CURRENT_MACHINE}:9010
+     - FE_SERVERS=fe1:192.168.56.1:9010
      - FE_ID=1
     volumes:
      - /data/fe/doris-meta/:/opt/apache-doris/fe/doris-meta/
      - /data/fe/log/:/opt/apache-doris/fe/log/
-    network_mode: host
   doris-be:
-    image: apache/doris:2.0.3-be-x86_64
+    image: apache/doris:2.0.0_alpha-fe-x86_64
     hostname: be
     environment:
-     - FE_SERVERS=fe1:${INTERNAL_IP_OF_CURRENT_MACHINE}:9010
-     - BE_ADDR=${INTERNAL_IP_OF_CURRENT_MACHINE}:9050
+     - FE_SERVERS=fe1:192.168.56.1:9010
+     - BE_ADDR=192.168.56.1:9050
     volumes:
      - /data/be/storage/:/opt/apache-doris/be/storage/
      - /data/be/script/:/docker-entrypoint-initdb.d/
     depends_on:
-      - fe
-    network_mode: host
+      - doris-fe
 
 volumes:
   mongo-data:

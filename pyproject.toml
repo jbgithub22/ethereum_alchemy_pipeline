@@ -25,6 +25,7 @@ pandas = "^2.0.0"
 polars = "^0.18.0"
 pymongo = "^4.8.0"
 kafka-python-ng = "^2.2.2"
+pyspark = "^3.5.2"
 
 [tool.poetry.group.visualization.dependencies]
 numpy = "^1.23.0"

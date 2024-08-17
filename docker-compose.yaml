@@ -12,17 +12,28 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
 
   mongo-express:
-    image: mongo-express:1.0.0-alpha.4
+    image: mongo-express:latest
     environment:
       ME_CONFIG_MONGODB_ADMINUSERNAME: root
       ME_CONFIG_MONGODB_ADMINPASSWORD: example
+      ME_CONFIG_MONGODB_PORT: 27017   
       ME_CONFIG_MONGODB_SERVER: mongodb
+      ME_CONFIG_MONGODB_AUTH_DATABASE: admin
+      ME_CONFIG_MONGODB_URL: mongodb://root:example@mongodb:27017/
     ports:
       - "8081:8081"
     depends_on:
-      - mongodb
+      mongodb:
+        condition: service_healthy
+    restart: always
 
   kafka:
     image: confluentinc/cp-kafka:7.4.0
@@ -31,11 +42,12 @@ services:
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: "broker,controller"
       KAFKA_CONTROLLER_QUORUM_VOTERS: "1@kafka:9093"
-      KAFKA_LISTENERS: "PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093"
-      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:9092"
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT"
+      KAFKA_LISTENERS: INTERNAL://0.0.0.0:9092,OUTSIDE://0.0.0.0:9094,CONTROLLER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:9092,OUTSIDE://localhost:9094
+      KAFKA_ADVERTISED_HOST_NAME: "kafka"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,OUTSIDE:PLAINTEXT,CONTROLLER:PLAINTEXT
       KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
-      KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
       KAFKA_LOG_DIRS: "/tmp/kraft-combined-logs"
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
@@ -43,16 +55,19 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       CLUSTER_ID: "5Yr1SIgYQz-b-dgRabWx4g"
     ports:
-      - "9092:9092"
+      - "9092:9092"  # Internal Docker network (optional to expose)
+      - "9093:9093"  # Controller listener port
+      - "9094:9094"  # External access on localhost
     volumes:
       - kafka-data:/tmp/kraft-combined-logs
+    user: "root"
 
   kafka-connect:
     image: confluentinc/cp-kafka-connect:7.4.0
     ports:
       - "8083:8083"
     environment:
-      CONNECT_BOOTSTRAP_SERVERS: kafka:9092
+      CONNECT_BOOTSTRAP_SERVERS: "kafka:9092"
       CONNECT_REST_PORT: 8083
       CONNECT_GROUP_ID: "connect-cluster"
       CONNECT_CONFIG_STORAGE_TOPIC: "connect-configs"
@@ -62,12 +77,20 @@ services:
       CONNECT_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
       CONNECT_INTERNAL_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
       CONNECT_INTERNAL_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      CONNECT_REST_ADVERTISED_HOST_NAME: "kafka-connect"
+      CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: "1"
+      CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: "1"
+      CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: "1"
+      CONNECT_PLUGIN_PATH: "/usr/share/java,/etc/kafka-connect/jars"
+    volumes:
+      - ./kafka-connect-plugins:/etc/kafka-connect/jars
+      - C:/hadoop:/opt/hadoop
     depends_on:
       - kafka
 
   # Spark Master Service
   spark-master:
-    image: bitnami/spark:3.4.1
+    image: bitnami/spark:latest
     container_name: spark-master
     environment:
       - SPARK_MODE=master
@@ -75,14 +98,16 @@ services:
       - SPARK_RPC_ENCRYPTION_ENABLED=no
       - SPARK_LOCAL_DIRS=/tmp
       - SPARK_LOG_DIR=/opt/bitnami/spark/logs
+      - HADOOP_HOME=/opt/hadoop
     ports:
       - "8080:8080"
     volumes:
       - spark-master-logs:/opt/bitnami/spark/logs
+      - C:/hadoop:/opt/hadoop
 
   # Spark Worker Service
   spark-worker:
-    image: bitnami/spark:3.4.1
+    image: bitnami/spark:latest
     container_name: spark-worker
     environment:
       - SPARK_MODE=worker
@@ -90,10 +115,13 @@ services:
       - SPARK_WORKER_MEMORY=1G
       - SPARK_WORKER_CORES=1
       - SPARK_LOG_DIR=/opt/bitnami/spark/logs
+      - HADOOP_HOME=/opt/hadoop
     ports:
       - "8081:8081"
     volumes:
       - spark-worker-logs:/opt/bitnami/spark/logs
+    depends_on:
+      - spark-master
 
   # Hadoop https://hub.docker.com/r/apache/hadoop
   hadoop-namenode:

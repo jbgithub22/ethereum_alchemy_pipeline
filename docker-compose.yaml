@@ -88,40 +88,7 @@ services:
     depends_on:
       - kafka
 
-  # Spark Master Service
-  spark-master:
-    image: bitnami/spark:latest
-    container_name: spark-master
-    environment:
-      - SPARK_MODE=master
-      - SPARK_RPC_AUTHENTICATION_ENABLED=no
-      - SPARK_RPC_ENCRYPTION_ENABLED=no
-      - SPARK_LOCAL_DIRS=/tmp
-      - SPARK_LOG_DIR=/opt/bitnami/spark/logs
-      - HADOOP_HOME=/opt/hadoop
-    ports:
-      - "8080:8080"
-    volumes:
-      - spark-master-logs:/opt/bitnami/spark/logs
-      - C:/hadoop:/opt/hadoop
 
-  # Spark Worker Service
-  spark-worker:
-    image: bitnami/spark:latest
-    container_name: spark-worker
-    environment:
-      - SPARK_MODE=worker
-      - SPARK_MASTER_URL=spark://spark-master:7077
-      - SPARK_WORKER_MEMORY=1G
-      - SPARK_WORKER_CORES=1
-      - SPARK_LOG_DIR=/opt/bitnami/spark/logs
-      - HADOOP_HOME=/opt/hadoop
-    ports:
-      - "8081:8081"
-    volumes:
-      - spark-worker-logs:/opt/bitnami/spark/logs
-    depends_on:
-      - spark-master
 
   # Hadoop https://hub.docker.com/r/apache/hadoop
   hadoop-namenode:
@@ -206,3 +173,90 @@ volumes:
 #     KAFKA_CREATE_TOPICS: "test_topic:1:1"
 #   volumes:
 #     - /var/run/docker.sock:/var/run/docker.sock
+
+  # # Spark Master Service
+  # spark-master:
+  #   image: bitnami/spark:latest
+  #   container_name: spark-master
+  #   environment:
+  #     - SPARK_MODE=master
+  #     - SPARK_RPC_AUTHENTICATION_ENABLED=no
+  #     - SPARK_RPC_ENCRYPTION_ENABLED=no
+  #     - SPARK_LOCAL_DIRS=/tmp
+  #     - SPARK_LOG_DIR=/opt/bitnami/spark/logs
+  #     - HADOOP_HOME=/opt/hadoop
+  #   ports:
+  #     - "7077:7077"
+  #     - "8080:8080"
+  #   volumes:
+  #     - spark-master-logs:/opt/bitnami/spark/logs
+  #     - C:/hadoop:/opt/hadoop
+  #     - C:\spark:/opt/spark/jars
+
+  # # Spark Worker Service
+  # spark-worker:
+  #   image: bitnami/spark:latest
+  #   container_name: spark-worker
+  #   environment:
+  #     - SPARK_MODE=worker
+  #     - SPARK_MASTER_URL=spark://spark-master:7077
+  #     - SPARK_WORKER_MEMORY=1G
+  #     - SPARK_WORKER_CORES=1
+  #     - SPARK_LOG_DIR=/opt/bitnami/spark/logs
+  #     - HADOOP_HOME=/opt/hadoop
+  #   ports:
+  #     - "8081:8081"
+  #   volumes:
+  #     - spark-worker-logs:/opt/bitnami/spark/logs
+  #     - C:/hadoop:/opt/hadoop
+  #     - C:\spark:/opt/spark/jars
+  #   depends_on:
+  #     - spark-master
+
+# Spark Issues: Suspected compatibility issue with Spark 3.5.2 and Python 3.12.5. Suspect need to downgrade Python to 3.11
+
+  # # Spark Master Service
+  # spark-master:
+  #   image: gpt-2-spark-python3.12.5
+  #   container_name: spark-master
+  #   hostname: spark-master
+  #   command: start-master.sh
+  #   ports:
+  #     - "7077:7077"  # Spark master port
+  #     - "8080:8080"  # Spark master web UI
+  #   volumes:
+  #     - C:\spark:/opt/spark/additional-jars
+  #   environment:
+  #     - SPARK_MASTER_HOST=spark-master
+  #     - SPARK_LOG_DIR=/opt/spark/logs
+  #     - SPARK_WORKER_DIR=/opt/spark/work
+  #     - SPARK_LOCAL_DIRS=/opt/spark/temp
+  #     - PYSPARK_PYTHON=/usr/local/bin/python3.12
+  #     - PYSPARK_DRIVER_PYTHON=/usr/local/bin/python3.12
+  #   healthcheck:
+  #     test: curl -f http://spark-master:8080/ || exit 1
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 3
+  #     start_period: 10s
+
+  # # Spark Worker Service
+  # spark-worker:
+  #   image: gpt-2-spark-python3.12.5
+  #   container_name: spark-worker
+  #   hostname: spark-worker
+  #   command: start-worker.sh spark://spark-master:7077
+  #   depends_on:
+  #     - spark-master
+  #   volumes:
+  #     - C:\spark:/opt/spark/additional-jars
+  #   environment:
+  #     # - SPARK_WORKER_CORES=6  # Number of cores to use
+  #     # - SPARK_WORKER_MEMORY=36G  # Amount of memory to use
+  #     - SPARK_LOG_DIR=/opt/spark/logs
+  #     - SPARK_WORKER_DIR=/opt/spark/work
+  #     - SPARK_LOCAL_DIRS=/opt/spark/temp
+  #     - PYSPARK_PYTHON=/usr/local/bin/python3.12
+  #     - PYSPARK_DRIVER_PYTHON=/usr/local/bin/python3.12
+  #   ports:
+  #     - "8081:8081" 

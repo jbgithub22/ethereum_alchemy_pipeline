@@ -11,7 +11,7 @@ Ethereum Blockchain > Web3.eth.py > MongoDB / Hadoop > Kafka > Spark / Flink > H
 ### Phase 0 - Project Setup
 Setup of goals, basic project structure, timeline, virtual environments and version control.
 
-### Phase 1 - Duct Tape Phase
+### Phase 1 - Duct Tape Phase (Current Phase)
 Get the entire pipeline running in whatever form as quick as possible.
 
 ### Phase 2 - Stabilizing Phase

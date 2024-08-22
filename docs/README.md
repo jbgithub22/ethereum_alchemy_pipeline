@@ -5,7 +5,13 @@ The project is meant to be expansive, where deploying most optimal solution is n
 The project timeline will be in phases and the project structure fluid.
 
 ## Project Diagram
-Ethereum Blockchain > Web3.eth.py > MongoDB / Hadoop > Kafka > Spark / Flink > Hadoop / Doris > Tableau / Plotly Dash / ML-Pytorch-Streamlit
+Ethereum Blockchain > 
+Web3.eth.py > 
+MongoDB / Hadoop > 
+Kafka > 
+Spark / Flink > 
+Hadoop / Doris > 
+Tableau / Plotly Dash / ML-Pytorch-Streamlit
 
 ## Timeline & Phases
 ### Phase 0 - Project Setup

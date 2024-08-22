@@ -15,7 +15,7 @@ Setup of goals, basic project structure, timeline, virtual environments and vers
 Get the entire pipeline running in whatever form as quick as possible.
 
 ### Phase 2 - Stabilizing Phase
-Build infrastructure for health-checks, cybersecurity, exception and logging if not already implemented.
+Start implementation of refactoring, OOP and modular programming. Build infrastructure for health-checks, cybersecurity, exception and logging if not already implemented.
 
 ### Phase 3 - Data Product Design Start
 Assessment of 'Data Product' requirements, design and planning of data transformations required at each point of the pipeline to deliver the required 'Data Product' to the consumer.

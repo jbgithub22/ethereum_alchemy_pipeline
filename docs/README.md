@@ -24,4 +24,4 @@ Assessment of 'Data Product' requirements, design and planning of data transform
 Exploration of other data sources, and new data products from these new data sources. ie: X/TikTok sentiment data sources and delivering a sentiment analysis front-end.
 
 ### Phase 5 - Maintenance Phase
-Patches and red-teaming on integrity of data pipeline.
+Patches and red-teaming on integrity of data pipeline. Cost-benefit analysis of version upgrades.
